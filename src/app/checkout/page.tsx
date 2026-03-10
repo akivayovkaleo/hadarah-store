@@ -29,7 +29,6 @@ export default function CheckoutPage() {
   const [orderNumber, setOrderNumber] = useState('');
   useEffect(() => {
     if (step === 'confirmation') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOrderNumber(generateOrderNumber());
     }
   }, [step]);
@@ -119,14 +118,51 @@ export default function CheckoutPage() {
     e.preventDefault();
     setLoading(true);
 
-    // Simulação de processamento
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const response = await fetch('/api/payments/pagbank/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          referenceId: `pedido_${Date.now()}`,
+          customer: {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            taxId: formData.cpf.replace(/\D/g, ''),
+            phone: formData.phone.replace(/\D/g, ''),
+          },
+          address: {
+            street: formData.street,
+            number: formData.number,
+            complement: formData.complement,
+            neighborhood: formData.neighborhood,
+            city: formData.city,
+            state: formData.state,
+            postalCode: formData.zipCode.replace(/\D/g, ''),
+          },
+          items: cartItems,
+          shipping,
+          total,
+          paymentMethod: formData.paymentMethod,
+        }),
+      });
 
-    // Em produção: enviar para Firebase/Stripe/PagSeguro
-    console.log('Pedido enviado:', formData);
+      const result = await response.json();
 
-    setLoading(false);
-    setStep('confirmation');
+      if (!response.ok) {
+        throw new Error(result.message || 'Erro ao processar pagamento');
+      }
+
+      console.log('PagBank Result:', result);
+      setStep('confirmation');
+    } catch (error) {
+      console.error('Erro no checkout:', error);
+      const message = error instanceof Error ? error.message : 'Erro ao processar seu pedido. Por favor, tente novamente.';
+      alert(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Página de Confirmação
