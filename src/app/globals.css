@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --primary-bg: #0F0F0F;
@@ -9,6 +7,21 @@
   --accent-gold: #D4AF37;
   --font-serif: var(--font-playfair);
   --font-sans: var(--font-inter);
+
+  /* Custom vars from page.tsx */
+  --card-bg: #141414;
+  --border-color: #2A2A2A;
+  --secondary-bg: #141414;
+  --text-muted: #6B6B6B;
+}
+
+@theme {
+  --font-serif: var(--font-playfair), serif;
+  --font-sans: var(--font-inter), sans-serif;
+
+  --color-gold: #D4AF37;
+  --color-gold-light: #E5C158;
+  --color-gold-dark: #B89E2E;
 }
 
 * {
@@ -44,5 +57,19 @@ body {
   }
   a, button, [role="button"] {
     cursor: pointer;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-10 py-4 bg-gold text-[#0F0F0F] text-[11px] font-black uppercase tracking-[0.3em] hover:bg-gold-light transition-all duration-300;
+  }
+
+  .btn-secondary {
+    @apply px-10 py-4 border border-gold text-gold text-[11px] font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-[#0F0F0F] transition-all duration-300;
+  }
+
+  .input-luxury {
+    @apply bg-transparent border-b border-[#2A2A2A] py-4 px-0 text-white outline-none focus:border-gold transition-colors placeholder:text-[#6B6B6B];
   }
 }
