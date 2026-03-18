@@ -116,7 +116,7 @@ export default function ContatoPage() {
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#0F0F0F]" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
         <div className="relative z-10 text-center px-6">
@@ -135,7 +135,7 @@ export default function ContatoPage() {
       {/* ============================================
           CONTEÚDO PRINCIPAL
           ============================================ */}
-      <main className="max-w-7xl mx-auto px-6 py-20">
+      <main className="max-w-7xl mx-auto px-6 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
           {/* ============================================

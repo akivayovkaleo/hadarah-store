@@ -53,19 +53,19 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
         }}
       >
         {/* Container da Imagem */}
-        <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[#1A1A1A]">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[#1A1A1A] border border-[#2A2A2A] transition-all duration-300 group-hover:border-[#D4AF37]">
           <Image
             src={product.imageUrl}
             alt={product.name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             quality={85}
           />
           
           {/* Overlay Gradual */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
           
           {/* Badge de Categoria */}
           <div
@@ -261,7 +261,7 @@ export default function FeaturedProducts() {
 
         {/* Estado Vazio */}
         {!loading && products.length === 0 && (
-          <div className="text-center py-16">
+          <div className="text-center py-24">
             <p className="text-[#6B6B6B] text-sm">
               Nossa coleção está sendo renovada. Volte em breve.
             </p>

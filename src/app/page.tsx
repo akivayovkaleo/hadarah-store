@@ -1,93 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import Newsletter from '@/src/components/Newsletter';
+import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import { db } from '@/src/services/firebase';
 import { Product } from '@/src/types/product';
 
-// Componente interno: Skeleton de carregamento elegante
 function ProductSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="aspect-[3/4] bg-[var(--card-bg)] rounded-sm" />
-      <div className="mt-4 space-y-2">
-        <div className="h-4 bg-[var(--border-color)] rounded w-3/4" />
-        <div className="h-3 bg-[var(--border-color)] rounded w-1/2" />
+      <div className="h-80 rounded-sm bg-[#1A1A1A]" />
+      <div className="mt-4 space-y-3">
+        <div className="h-4 w-3/4 rounded bg-[#2A2A2A]" />
+        <div className="h-3 w-1/2 rounded bg-[#2A2A2A]" />
       </div>
     </div>
   );
 }
 
-// Componente interno: Card de Produto com Hover Magnético
 function LuxuryProductCard({ product }: { product: Product }) {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMousePos({ x, y });
-  };
+  const imageSrc =
+    product.imageUrl ||
+    product.image ||
+    '/images/placeholder-product.jpg';
 
   return (
-    <Link href={`/produto/${product.id}`}>
-      <div
-        onMouseMove={handleMouseMove}
-        onMouseLeave={() => setMousePos({ x: 0, y: 0 })}
-        className="group relative cursor-none md:cursor-none"
-        style={{
-          transform: `
-            perspective(1000px)
-            rotateY(${mousePos.x * 4}deg)
-            rotateX(${-mousePos.y * 4}deg)
-            scale(${1 + Math.sqrt(mousePos.x ** 2 + mousePos.y ** 2) * 0.03})
-          `,
-          transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-          transformStyle: 'preserve-3d',
-        }}
-      >
-        {/* Container da Imagem */}
-        <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[var(--card-bg)] shadow-lg">
+    <Link href={`/produto/${product.id}`} className="group block">
+      <div className="relative overflow-hidden rounded-sm border border-[#2A2A2A] bg-[#141414] transition-all duration-300 hover:border-[#D4AF37]">
+        <div className="relative aspect-[3/4] overflow-hidden">
           <Image
-            src={product.imageUrl}
+            src={imageSrc}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
-            sizes="(max-width: 768px) 50vw, 33vw"
-            loading="lazy"
-            priority={false}
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 1024px) 100vw, 33vw"
           />
-          
-          {/* Overlay Gradual */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-          
-          {/* Badge de Categoria */}
-          <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 delay-75 translate-y-2 group-hover:translate-y-0">
-            <span className="bg-[var(--accent-gold)] text-black text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5">
-              {product.category === 'havaianas' ? 'Havaianas' : 'Coleção'}
-            </span>
-          </div>
-
-          {/* Botão "Ver Produto" */}
-          <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-            <button className="w-full bg-white/95 backdrop-blur-sm text-black text-[10px] font-black uppercase tracking-[0.25em] py-3.5 hover:bg-[var(--accent-gold)] transition-colors duration-300">
-              Ver Produto
-            </button>
-          </div>
-
-          {/* Brilho Dourado no Hover */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[var(--accent-gold)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         </div>
 
-        {/* Informações */}
-        <div className="mt-5 space-y-1.5">
-          <h3 className="text-sm font-[var(--font-serif)] font-light text-white group-hover:text-[var(--accent-gold)] transition-colors duration-300">
+        <div className="mt-5 space-y-1.5 p-4">
+          <h3 className="font-[var(--font-serif)] text-sm font-light text-white transition-colors duration-300 group-hover:text-[var(--accent-gold)]">
             {product.name}
           </h3>
-          <p className="text-xs text-[var(--text-secondary)] font-medium">
-            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+          <p className="text-xs font-medium text-[var(--text-secondary)]">
+            {new Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            }).format(product.price)}
           </p>
         </div>
       </div>
@@ -98,12 +59,13 @@ function LuxuryProductCard({ product }: { product: Product }) {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState('');
-  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [productError, setProductError] = useState<string | null>(null);
 
-  // Buscar produtos ativos do Firebase
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
+      setLoading(true);
+      setProductError(null);
+
       try {
         const q = query(
           collection(db, 'products'),
@@ -111,40 +73,41 @@ export default function Home() {
           orderBy('createdAt', 'desc'),
           limit(6)
         );
+
         const snapshot = await getDocs(q);
-        const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
+        const list = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Product[];
+
         setProducts(list);
       } catch (error) {
         console.error('Erro ao buscar produtos:', error);
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Erro desconhecido ao carregar produtos.';
+
+        if (message.toLowerCase().includes('index')) {
+          setProductError(
+            'A consulta no Firebase requer índice composto. Por favor, crie o índice em Firestore para esta consulta.'
+          );
+        } else {
+          setProductError(
+            'Não foi possível carregar os produtos no momento. Tente novamente mais tarde.'
+          );
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchFeaturedProducts();
   }, []);
 
-  // Handle newsletter signup
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes('@')) {
-      setNewsletterStatus('error');
-      return;
-    }
-    // Aqui você integraria com seu backend/Firebase
-    setNewsletterStatus('success');
-    setEmail('');
-    setTimeout(() => setNewsletterStatus('idle'), 4000);
-  };
-
   return (
-    <main className="min-h-screen">
-      
-      {/* ============================================
-          HERO SECTION - Impacto Visual Imediato
-          ============================================ */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        
-        {/* Background com Imagem/Vídeo */}
+    <main className="min-h-screen bg-[#0F0F0F]">
+      <section className="relative flex min-h-[120vh] items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&q=80&w=2070"
@@ -154,34 +117,27 @@ export default function Home() {
             priority
             sizes="100vw"
           />
-          {/* Overlay Escuro Elegante */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[var(--primary-bg)]" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
-        {/* Conteúdo Central */}
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto animate-fade-in">
-          
-          {/* Slogan Superior */}
-          <p className="text-[var(--accent-gold)] text-[10px] font-black uppercase tracking-[0.4em] mb-6 opacity-0 animate-[fadeIn_1s_ease-out_0.3s_forwards]">
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+          <p className="mb-6 text-[10px] font-black uppercase tracking-[0.4em] text-[var(--accent-gold)]">
             Adornada com beleza
           </p>
-          
-          {/* Título Principal */}
-          <h1 className="font-[var(--font-serif)] text-5xl md:text-7xl lg:text-8xl font-light text-white mb-8 leading-tight opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]">
+
+          <h1 className="font-[var(--font-serif)] text-4xl font-light leading-tight text-white md:text-6xl">
             HADARAH
-            <span className="block text-[var(--accent-gold)] font-bold text-4xl md:text-6xl lg:text-7xl mt-2 not-italic">
+            <span className="mt-2 block text-4xl font-bold not-italic text-[var(--accent-gold)] md:text-6xl">
               Store
             </span>
           </h1>
-          
-          {/* Descrição */}
-          <p className="text-[var(--text-secondary)] text-sm md:text-base max-w-xl mx-auto mb-10 opacity-0 animate-[fadeIn_1s_ease-out_0.7s_forwards]">
-            Peças exclusivas para quem entende que luxo é uma forma de expressão. 
+
+          <p className="mx-auto mb-10 mt-8 max-w-xl text-sm text-[var(--text-secondary)] md:text-base">
+            Peças exclusivas para quem entende que luxo é uma forma de expressão.
             Roupas de elite, joias artesanais e havaianas premium.
           </p>
-          
-          {/* Botões de Ação */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center opacity-0 animate-[fadeIn_1s_ease-out_0.9s_forwards]">
+
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link href="#colecao" className="btn-primary">
               Explorar Coleção
             </Link>
@@ -191,211 +147,264 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-[var(--accent-gold)]/60 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-[var(--accent-gold)] rounded-full mt-2 animate-pulse" />
+          <div className="flex h-10 w-6 justify-center rounded-full border-2 border-[var(--accent-gold)]/60">
+            <div className="mt-2 h-3 w-1 rounded-full bg-[var(--accent-gold)]" />
           </div>
         </div>
       </section>
 
+      <section className="bg-[#141414] py-32">
+        <div className="mx-auto max-w-7xl px-6">
+          <h2 className="mb-16 text-center text-4xl font-light text-white">
+            Explore a coleção
+          </h2>
 
-      {/* ============================================
-          VITRINE DE PRODUTOS - Grid Elegante
-          ============================================ */}
-      <section id="colecao" className="py-24 px-6 bg-[var(--primary-bg)]">
-        <div className="max-w-7xl mx-auto">
-          
-          {/* Header da Seção */}
-          <div className="text-center mb-16">
-            <p className="text-[var(--accent-gold)] text-[10px] font-black uppercase tracking-[0.3em] mb-4">
+          <div className="grid gap-10 md:grid-cols-3">
+            <div className="group relative overflow-hidden rounded-sm">
+              <img
+                src="/images/category1.jpg"
+                alt="Novidades"
+                className="h-64 w-full object-cover transition duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                <h3 className="text-2xl font-light text-white">Novidades</h3>
+              </div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-sm">
+              <img
+                src="/images/category2.jpg"
+                alt="Essenciais"
+                className="h-64 w-full object-cover transition duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                <h3 className="text-2xl font-light text-white">Essenciais</h3>
+              </div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-sm">
+              <img
+                src="/images/category3.jpg"
+                alt="Exclusivos"
+                className="h-64 w-full object-cover transition duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                <h3 className="text-2xl font-light text-white">Exclusivos</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="colecao" className="bg-[var(--primary-bg)] px-6 py-32">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 text-center">
+            <p className="mb-4 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--accent-gold)]">
               Coleção Exclusiva
             </p>
-            <h2 className="font-[var(--font-serif)] text-3xl md:text-4xl font-light text-white">
+            <h2 className="font-[var(--font-serif)] text-3xl font-light text-white md:text-4xl">
               Peças Selecionadas
             </h2>
-            <div className="w-24 h-px bg-[var(--accent-gold)] mx-auto mt-6" />
+            <div className="mx-auto mt-6 h-px w-24 bg-[var(--accent-gold)]" />
           </div>
 
-          {/* Grid de Produtos */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-            {loading
-              ? Array.from({ length: 6 }).map((_, i) => <ProductSkeleton key={i} />)
-              : products.map((product) => (
-                  <LuxuryProductCard key={product.id} product={product} />
-                ))}
-          </div>
-
-          {/* Botão Ver Mais */}
-          {!loading && products.length > 0 && (
-            <div className="text-center mt-16">
-              <Link href="/colecao" className="btn-secondary inline-flex items-center gap-2">
-                Ver Coleção Completa
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
+          {loading && (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ProductSkeleton key={i} />
+              ))}
             </div>
           )}
 
-          {/* Estado Vazio */}
-          {!loading && products.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-[var(--text-muted)] text-sm">
-                Nossa coleção está sendo renovada. Volte em breve.
+          {!loading && productError && (
+            <div className="rounded-sm border border-red-500/30 bg-red-500/10 p-5 text-center">
+              <p className="mb-2 text-sm text-red-200">Erro ao carregar produtos</p>
+              <p className="mx-auto max-w-xl text-xs text-red-100">
+                {productError}
+              </p>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="mt-4 inline-flex items-center gap-2 rounded-full border border-red-200/40 bg-red-500/20 px-4 py-2 text-xs font-semibold text-red-100 hover:bg-red-500/30"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          )}
+
+          {!loading && !productError && products.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12">
+                {products.map((product) => (
+                  <LuxuryProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              <div className="mt-16 text-center">
+                <Link href="/colecao" className="btn-secondary inline-flex items-center gap-2">
+                  Ver Coleção Completa
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                </Link>
+              </div>
+            </>
+          )}
+
+          {!loading && !productError && products.length === 0 && (
+            <div className="rounded-sm border border-white/10 bg-white/5 p-8 text-center">
+              <p className="text-lg font-semibold text-white">
+                Coleção momentaneamente indisponível
+              </p>
+              <p className="mt-2 text-sm text-[#A3A3A3]">
+                Estamos atualizando nossos produtos premium. Volte em breve para ver novidades exclusivas.
               </p>
             </div>
           )}
         </div>
       </section>
 
+      <section className="bg-black py-40 text-center">
+        <div className="mx-auto max-w-4xl px-6">
+          <h2 className="mb-6 text-5xl font-light text-white">
+            Moda como expressão
+          </h2>
+          <p className="text-lg leading-relaxed text-[#A3A3A3]">
+            Cada peça da Hadarah nasce de um processo cuidadoso de curadoria,
+            combinando elegância atemporal com materiais premium.
+          </p>
+        </div>
+      </section>
 
-      {/* ============================================
-          SOBRE A HADARAH - Storytelling de Luxo
-          ============================================ */}
-      <section id="sobre" className="py-24 px-6 bg-[var(--secondary-bg)]">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          
-          {/* Imagem com Efeito */}
-          <div className="relative aspect-[4/5] lg:aspect-square overflow-hidden rounded-sm group">
+      <section id="sobre" className="bg-[var(--secondary-bg)] px-6 py-32">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
+          <div className="group relative aspect-[4/5] overflow-hidden rounded-sm lg:aspect-square">
             <Image
-              src="https://images.unsplash.com/photo-1550614000-4b9519e02a48?auto=format&fit=crop&q=80&w=1974"
+              src="https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&q=80&w=1974"
               alt="Ateliê Hadarah - Artesanato de Luxo"
               fill
               className="object-cover transition-transform duration-1000 group-hover:scale-105"
               sizes="(max-width: 1024px) 100vw, 50vw"
-              loading="lazy"
             />
-            <div className="absolute inset-0 border-2 border-[var(--accent-gold)]/30 m-4 pointer-events-none" />
+            <div className="pointer-events-none absolute inset-0 m-4 border-2 border-[var(--accent-gold)]/30" />
           </div>
 
-          {/* Conteúdo */}
           <div className="space-y-8">
             <div>
-              <p className="text-[var(--accent-gold)] text-[10px] font-black uppercase tracking-[0.3em] mb-4">
+              <p className="mb-4 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--accent-gold)]">
                 Nossa Essência
               </p>
-              <h2 className="font-[var(--font-serif)] text-3xl md:text-4xl font-light text-white mb-6">
+              <h2 className="mb-6 font-[var(--font-serif)] text-3xl font-light text-white md:text-4xl">
                 Mais que uma marca, <br />
-                <span className="text-[var(--accent-gold)] font-bold not-italic">uma declaração</span>
+                <span className="font-bold not-italic text-[var(--accent-gold)]">
+                  uma declaração
+                </span>
               </h2>
             </div>
-            
-            <div className="space-y-4 text-[var(--text-secondary)] text-sm leading-relaxed">
+
+            <div className="max-w-xl space-y-4 text-sm leading-relaxed text-[var(--text-secondary)]">
               <p>
-                A Hadarah nasceu do desejo de transformar o vestir em arte. Cada peça é cuidadosamente 
-                selecionada ou desenvolvida em parceria com artesãos que compartilham nossa visão: 
+                A Hadarah nasceu do desejo de transformar o vestir em arte. Cada peça é cuidadosamente
+                selecionada ou desenvolvida em parceria com artesãos que compartilham nossa visão:
                 luxo não é sobre ostentação, é sobre essência.
               </p>
               <p>
-                Nossas havaianas premium são feitas com materiais sustentáveis e detalhes em ouro 18k. 
+                Nossas havaianas premium são feitas com materiais sustentáveis e detalhes em ouro 18k.
                 Nossas roupas seguem cortes atemporais que valorizam a silhueta sem sacrificar o conforto.
               </p>
             </div>
 
-            {/* Stats Elegantes */}
-            <div className="grid grid-cols-3 gap-6 pt-6 border-t border-[var(--border-color)]">
+            <div className="grid grid-cols-3 gap-6 border-t border-[var(--border-color)] pt-6">
               <div>
-                <p className="text-2xl font-[var(--font-serif)] text-white">100+</p>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Peças Exclusivas</p>
+                <p className="font-[var(--font-serif)] text-2xl text-white">100+</p>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                  Peças Exclusivas
+                </p>
               </div>
               <div>
-                <p className="text-2xl font-[var(--font-serif)] text-white">18k</p>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Detalhes em Ouro</p>
+                <p className="font-[var(--font-serif)] text-2xl text-white">18k</p>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                  Detalhes em Ouro
+                </p>
               </div>
               <div>
-                <p className="text-2xl font-[var(--font-serif)] text-white">∞</p>
-                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Elegância</p>
+                <p className="font-[var(--font-serif)] text-2xl text-white">∞</p>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                  Elegância
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      <section className="bg-[#141414] py-32">
+        <div className="mx-auto max-w-7xl px-6 text-center">
+          <h2 className="mb-16 text-4xl font-light text-white">
+            O que dizem nossos clientes
+          </h2>
 
-      {/* ============================================
-          NEWSLETTER - Captura de Leads Elegante
-          ============================================ */}
-      <section className="py-24 px-6 bg-[var(--primary-bg)]">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="text-[var(--accent-gold)] text-[10px] font-black uppercase tracking-[0.3em] mb-4">
-            Exclusividade em Primeiro Lugar
-          </p>
-          <h3 className="font-[var(--font-serif)] text-2xl md:text-3xl font-light text-white mb-6">
-            Seja o primeiro a saber das novas coleções
-          </h3>
-          <p className="text-[var(--text-secondary)] text-sm mb-8 max-w-md mx-auto">
-            Assine nossa newsletter e receba acesso antecipado a lançamentos, 
-            eventos privados e conteúdos exclusivos.
-          </p>
+          <div className="grid gap-10 md:grid-cols-3">
+            <div className="border border-[#2A2A2A] p-8">
+              <p className="text-[#A3A3A3]">
+                "A qualidade das peças é impressionante."
+              </p>
+            </div>
 
-          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Seu e-mail"
-              className="input-luxury flex-1 text-center sm:text-left"
-              required
-            />
-            <button type="submit" className="btn-primary whitespace-nowrap">
-              Assinar
-            </button>
-          </form>
+            <div className="border border-[#2A2A2A] p-8">
+              <p className="text-[#A3A3A3]">
+                "Experiência premium do começo ao fim."
+              </p>
+            </div>
 
-          {/* Feedback */}
-          {newsletterStatus === 'success' && (
-            <p className="mt-4 text-[var(--accent-gold)] text-sm animate-fade-in">
-              ✓ Bem-vindo à família Hadarah.
-            </p>
-          )}
-          {newsletterStatus === 'error' && (
-            <p className="mt-4 text-red-400 text-sm animate-fade-in">
-              Por favor, insira um e-mail válido.
-            </p>
-          )}
+            <div className="border border-[#2A2A2A] p-8">
+              <p className="text-[#A3A3A3]">
+                "Entrega rápida e acabamento impecável."
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
+      <div className="mx-auto max-w-7xl px-6 py-24">
+        <Newsletter />
+      </div>
 
-      {/* ============================================
-          FOOTER - Estrutura Elegante e Funcional
-          ============================================ */}
-      <footer className="bg-[var(--secondary-bg)] border-t border-[var(--border-color)]">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <h4 className="font-[var(--font-serif)] text-2xl text-white mb-4">
-                HADARAH<span className="text-[var(--accent-gold)]">.</span>
-              </h4>
-              <p className="text-[var(--text-secondary)] text-sm max-w-sm mb-6">
-                Adornada com beleza. Peças exclusivas para quem entende que 
-                luxo é uma forma de expressão.
+      <footer className="border-t border-[#2A2A2A] bg-[#0F0F0F]">
+        <div className="mx-auto max-w-7xl px-6 py-24 sm:px-8">
+          <div className="grid gap-12 md:grid-cols-4">
+            <div className="space-y-4 md:col-span-1">
+              <div className="inline-flex items-center gap-2">
+                <span className="font-[var(--font-serif)] text-2xl text-white">HADARAH</span>
+                <span className="text-3xl font-black text-[#D4AF37]">.</span>
+              </div>
+              <p className="max-w-xs text-sm leading-relaxed text-[#CCCCCC]">
+                Moda premium com curadoria atemporal e acabamentos luxuosos para quem valoriza excelência.
               </p>
-              <div className="flex gap-4">
-                {['Instagram', 'Pinterest', 'WhatsApp'].map((social) => (
-                  <a
-                    key={social}
-                    href="#"
-                    className="text-[var(--text-muted)] hover:text-[var(--accent-gold)] transition-colors text-sm uppercase tracking-wider"
-                  >
-                    {social}
-                  </a>
-                ))}
+              <div className="flex flex-wrap gap-3 text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                <span>+55 (11) 99999-9999</span>
+                <span className="hidden sm:inline">|</span>
+                <span>contato@hadarah.com</span>
               </div>
             </div>
 
-            {/* Links */}
-            <div>
-              <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent-gold)] mb-4">
+            <div className="space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
                 Navegação
-              </h5>
+              </p>
               <ul className="space-y-3 text-sm">
                 {['Home', 'Coleção', 'Sobre', 'Contato'].map((link) => (
                   <li key={link}>
-                    <a href={`#${link.toLowerCase()}`} className="text-[var(--text-secondary)] hover:text-white transition-colors">
+                    <a
+                      href={`#${link.toLowerCase()}`}
+                      className="text-[#D8D8D8] transition-colors hover:text-[#D4AF37]"
+                    >
                       {link}
                     </a>
                   </li>
@@ -403,31 +412,34 @@ export default function Home() {
               </ul>
             </div>
 
-            {/* Legal */}
-            <div>
-              <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent-gold)] mb-4">
-                Legal
-              </h5>
-              <ul className="space-y-3 text-sm">
-                {['Privacidade', 'Termos', 'Entregas', 'Trocas'].map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-[var(--text-secondary)] hover:text-white transition-colors">
-                      {link}
-                    </a>
-                  </li>
-                ))}
+            <div className="space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
+                Atendimento
+              </p>
+              <ul className="space-y-3 text-sm text-[#D8D8D8]">
+                <li>FAQ</li>
+                <li>Trocas e devoluções</li>
+                <li>Política de frete</li>
               </ul>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
+                Redes
+              </p>
+              <div className="flex gap-3">
+                <a className="text-[#D8D8D8] hover:text-[#D4AF37]">Instagram</a>
+                <a className="text-[#D8D8D8] hover:text-[#D4AF37]">Facebook</a>
+              </div>
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="mt-16 pt-8 border-t border-[var(--border-color)] flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
-              © {new Date().getFullYear()} Hadarah Store. Todos os direitos reservados.
-            </p>
-            <p className="text-[10px] text-[var(--text-muted)]">
-              Desenvolvido com <span className="text-[var(--accent-gold)]">◆</span> para a excelência
-            </p>
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[#2A2A2A] pt-6 text-sm text-[#A3A3A3] sm:flex-row">
+            <span>© {new Date().getFullYear()} Hadarah Store. Todos os direitos reservados.</span>
+            <div className="flex gap-4">
+              <a className="hover:text-[#D4AF37]">Privacidade</a>
+              <a className="hover:text-[#D4AF37]">Termos</a>
+            </div>
           </div>
         </div>
       </footer>

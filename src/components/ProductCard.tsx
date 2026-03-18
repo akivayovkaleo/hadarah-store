@@ -28,7 +28,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="group relative cursor-pointer"
+        className="group relative cursor-pointer rounded-sm border border-[#2A2A2A] bg-[#141414] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#D4AF37]"
         style={{
           transform: `
             perspective(1000px)
@@ -40,19 +40,19 @@ export default function ProductCard({ product }: ProductCardProps) {
         }}
       >
         {/* Imagem com Overlay Gradual */}
-        <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-neutral-100">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[#1A1A1A]">
           <Image
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-105 hover:scale-105"
             sizes="(max-width: 768px) 50vw, 33vw"
             priority={false}
             loading="lazy"
           />
           
           {/* Overlay que aparece no hover */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
+          <div className="absolute inset-0 bg-[#0F0F0F]/0 group-hover:bg-[#0F0F0F]/20 transition-colors duration-500" />
           
           {/* Badge de Categoria */}
           <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
@@ -71,10 +71,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Informações do Produto */}
         <div className="mt-4 space-y-1">
-          <h3 className="text-sm font-medium text-black group-hover:text-[var(--accent-gold)] transition-colors duration-300">
+          <h3 className="text-sm font-[var(--font-serif)] font-light text-white group-hover:text-[#D4AF37] transition-colors duration-300 tracking-wide leading-tight">
             {product.name}
           </h3>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[#A3A3A3] leading-relaxed">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
           </p>
         </div>

@@ -23,7 +23,7 @@ export default function SobrePage() {
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#0F0F0F]" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
         <div className="relative z-10 text-center px-6">
@@ -42,7 +42,7 @@ export default function SobrePage() {
       {/* ============================================
           HISTÓRIA DA MARCA
           ============================================ */}
-      <section className="py-20 md:py-32 px-6">
+      <section className="py-24 md:py-32 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
@@ -111,7 +111,7 @@ export default function SobrePage() {
       {/* ============================================
           VALORES DA MARCA
           ============================================ */}
-      <section className="py-20 md:py-32 px-6 bg-[#141414]">
+      <section className="py-24 md:py-32 px-6 bg-[#141414]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.3em] mb-4">
@@ -170,7 +170,7 @@ export default function SobrePage() {
       {/* ============================================
           CALL TO ACTION
           ============================================ */}
-      <section className="py-20 px-6">
+      <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-[var(--font-serif)] text-3xl md:text-4xl font-light text-white mb-6">
             Faça parte da nossa <span className="text-[#D4AF37] font-bold not-italic">história</span>

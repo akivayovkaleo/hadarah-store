@@ -150,7 +150,7 @@ export default function Categories() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/40" />
                 
                 {/* Overlay Adicional no Hover */}
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-[#0F0F0F]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
 
 

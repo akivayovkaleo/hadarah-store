@@ -126,7 +126,7 @@ export default function TermosPage() {
           HERO DA PÁGINA
           ============================================ */}
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#0F0F0F]" />
+        <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center px-6">
           <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.4em] mb-4">
             Legal
@@ -143,7 +143,7 @@ export default function TermosPage() {
       {/* ============================================
           CONTEÚDO PRINCIPAL
           ============================================ */}
-      <main className="max-w-4xl mx-auto px-6 py-20">
+      <main className="max-w-4xl mx-auto px-6 py-24">
         
         {/* Introdução */}
         <div className="mb-16">

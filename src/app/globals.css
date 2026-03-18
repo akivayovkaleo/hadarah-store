@@ -40,24 +40,12 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Cursor personalizado (desktop) */
-@media (min-width: 768px) {
-  body {
-    cursor: none;
-  }
-  a, button, [role="button"] {
-    cursor: none;
-  }
+/* Cursor padrão */
+body {
+  cursor: auto;
 }
-
-/* Mobile mantém cursor padrão */
-@media (max-width: 767px) {
-  body {
-    cursor: auto;
-  }
-  a, button, [role="button"] {
-    cursor: pointer;
-  }
+a, button, [role="button"] {
+  cursor: pointer;
 }
 
 @layer components {

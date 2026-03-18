@@ -1,6 +1,5 @@
 import "./globals.css";
 import { Playfair_Display, Inter } from 'next/font/google';
-import LuxuryCursor from '@/src/components/LuxuryCursor';
 import Navbar from '@/src/components/Navbar';
 
 const playfair = Playfair_Display({
@@ -31,7 +30,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${playfair.variable} ${inter.variable}`}>
       <body className="bg-[#0F0F0F] text-white font-sans antialiased">
-        <LuxuryCursor />
         <Navbar />
         {children}
       </body>

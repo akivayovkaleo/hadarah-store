@@ -14,7 +14,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative min-h-[80vh] w-full overflow-hidden bg-[#0F0F0F]">
       
       {/* ============================================
           BACKGROUND COM IMAGEM + OVERLAY
@@ -31,12 +31,12 @@ export default function Hero() {
           quality={90}
         />
         
-        {/* Overlay escuro gradiente (profundidade + legibilidade) */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#0F0F0F]" />
+        {/* Overlay escuro mais suave para ressaltar a imagem */}
+        <div className="absolute inset-0 bg-black/40" />
         
         {/* Vinhetas laterais sutis (efeito cinema) */}
-        <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-black/40 to-transparent pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-black/30 to-transparent pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black/30 to-transparent pointer-events-none" />
       </div>
 
 
@@ -67,7 +67,7 @@ export default function Hero() {
           <h1
             className={`
               font-[var(--font-serif)] 
-              text-5xl md:text-7xl lg:text-8xl 
+              text-4xl md:text-6xl 
               font-light 
               text-white 
               mb-6 md:mb-8

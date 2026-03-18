@@ -67,7 +67,7 @@ export default function ProdutoPage() {
     return (
       <div className="min-h-screen bg-[#0F0F0F]">
         <Navbar />
-        <div className="max-w-7xl mx-auto px-6 py-20">
+        <div className="max-w-7xl mx-auto px-6 py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Skeleton da Imagem */}
             <div className="aspect-[3/4] bg-[#1A1A1A] animate-pulse rounded-sm" />
@@ -127,7 +127,7 @@ export default function ProdutoPage() {
       {/* ============================================
           CONTEÚDO PRINCIPAL
           ============================================ */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-6 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           
           {/* ============================================
@@ -333,7 +333,7 @@ em exclusividade e sofisticação.`}
       {/* ============================================
           PRODUTOS RELACIONADOS (opcional)
           ============================================ */}
-      <section className="bg-[#141414] py-20">
+      <section className="bg-[#141414] py-24">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="font-[var(--font-serif)] text-2xl md:text-3xl text-white mb-12 text-center">
             VOCÊ TAMBÉM PODE GOSTAR

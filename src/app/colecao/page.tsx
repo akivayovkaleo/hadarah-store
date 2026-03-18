@@ -158,7 +158,7 @@ export default function ColecaoPage() {
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#0F0F0F]" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
         {/* Conteúdo */}
@@ -274,7 +274,7 @@ export default function ColecaoPage() {
       {/* ============================================
           GRID DE PRODUTOS
           ============================================ */}
-      <section className="py-16 md:py-24 px-6">
+      <section className="py-24 md:py-24 px-6">
         <div className="max-w-7xl mx-auto">
           
           {/* Contador de Resultados */}
@@ -332,7 +332,7 @@ export default function ColecaoPage() {
       {/* ============================================
           NEWSLETTER (opcional na página de coleção)
           ============================================ */}
-      <section className="py-16 bg-[#141414]">
+      <section className="py-24 bg-[#141414]">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.3em] mb-4">
             Não Encontrou o Que Procurava?

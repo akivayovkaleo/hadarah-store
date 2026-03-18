@@ -81,8 +81,8 @@ export default function CartPage() {
     return (
       <div className="min-h-screen bg-[#0F0F0F]">
         <Navbar />
-        <main className="max-w-7xl mx-auto px-6 py-20">
-          <div className="text-center py-20">
+        <main className="max-w-7xl mx-auto px-6 py-24">
+          <div className="text-center py-24">
             <svg
               className="w-24 h-24 mx-auto text-[#2A2A2A] mb-6"
               fill="none"
@@ -131,7 +131,7 @@ export default function CartPage() {
           HERO DA PÁGINA
           ============================================ */}
       <section className="relative h-[30vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#0F0F0F]" />
+        <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center px-6">
           <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.4em] mb-4">
             Shopping
@@ -145,7 +145,7 @@ export default function CartPage() {
       {/* ============================================
           CONTEÚDO PRINCIPAL
           ============================================ */}
-      <main className="max-w-7xl mx-auto px-6 py-16">
+      <main className="max-w-7xl mx-auto px-6 py-24">
         {loading ? (
           // Skeleton Loading
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">

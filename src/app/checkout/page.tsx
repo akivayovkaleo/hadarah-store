@@ -171,8 +171,8 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen bg-[#0F0F0F]">
         <Navbar />
-        <main className="max-w-3xl mx-auto px-6 py-20">
-          <div className="text-center py-12">
+        <main className="max-w-3xl mx-auto px-6 py-24">
+          <div className="text-center py-24">
             {/* Ícone de Sucesso */}
             <div className="w-20 h-20 mx-auto mb-8 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
               <svg className="w-10 h-10 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +258,7 @@ export default function CheckoutPage() {
           HERO DA PÁGINA
           ============================================ */}
       <section className="relative h-[30vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[#0F0F0F]" />
+        <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center px-6">
           <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.4em] mb-4">
             Finalizar Compra
@@ -307,7 +307,7 @@ export default function CheckoutPage() {
       {/* ============================================
           CONTEÚDO PRINCIPAL
           ============================================ */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-6 py-24">
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             
