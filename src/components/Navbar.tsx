@@ -22,8 +22,9 @@ export default function Navbar() {
   }, [pathname]);
 
   const navLinks = [
-    { name: 'Coleção', href: '/colecao' },
-    { name: 'Novidades', href: '/novidades' },
+    { name: 'Roupas', href: '/colecao/roupas' },
+    { name: 'Havaianas', href: '/colecao/havaianas' },
+    { name: 'Mercado', href: '/colecao/mercado' },
     { name: 'Sobre', href: '/sobre' },
     { name: 'Contato', href: '/contato' },
   ];

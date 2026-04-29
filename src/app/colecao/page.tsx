@@ -59,7 +59,7 @@ function ProductCard({ product }: { product: Product }) {
               ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}
             `}
           >
-            {product.category === 'havaianas' ? 'Havaianas' : 'Coleção'}
+            {product.category === 'havaianas' ? 'Havaianas' : product.category === 'roupas' ? 'Roupas' : 'Mercado'}
           </div>
 
           {/* Botão "Ver Produto" */}
@@ -93,7 +93,7 @@ function ProductCard({ product }: { product: Product }) {
 export default function ColecaoPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'havaianas' | 'roupas'>('all');
+  const [filter, setFilter] = useState<'all' | 'havaianas' | 'roupas' | 'mercado'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -166,7 +166,7 @@ export default function ColecaoPage() {
           <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.4em] mb-4">
             Nossa Coleção
           </p>
-          <h1 className="font-[var(--font-serif)] text-4xl md:text-6xl lg:text-7xl font-light text-white mb-6">
+          <h1 className="font-[var(--font-serif)] text-3xl md:text-4xl font-light text-white mb-6">
             COLEÇÃO <span className="font-bold text-[#D4AF37] not-italic">COMPLETA</span>
           </h1>
           <p className="text-[#A3A3A3] text-sm md:text-base max-w-xl mx-auto">
@@ -189,6 +189,7 @@ export default function ColecaoPage() {
                 { id: 'all', label: 'Todos' },
                 { id: 'havaianas', label: 'Havaianas' },
                 { id: 'roupas', label: 'Roupas' },
+                { id: 'mercado', label: 'Mercado' },
               ].map((item) => (
                 <button
                   key={item.id}

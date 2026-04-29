@@ -15,7 +15,7 @@ export default function AdminDashboard() {
   // Estados do Formulário
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-  const [category, setCategory] = useState<'havaianas' | 'roupas'>('havaianas');
+  const [category, setCategory] = useState<'havaianas' | 'roupas' | 'mercado'>('havaianas');
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [sizes, setSizes] = useState<{ [key: string]: number }>({});
@@ -39,9 +39,11 @@ export default function AdminDashboard() {
     }
   }, [message]);
 
-  const availableSizes = category === 'havaianas' 
-    ? ['33-34', '35-36', '37-38', '39-40', '41-42', '43-44'] 
-    : ['P', 'M', 'G', 'GG', 'XG'];
+  const availableSizes = category === 'havaianas'
+    ? ['33-34', '35-36', '37-38', '39-40', '41-42', '43-44']
+    : category === 'roupas'
+    ? ['P', 'M', 'G', 'GG', 'XG']
+    : ['UN'];
 
   const handleSizeChange = (size: string, qty: number) => {
     setSizes(prev => ({ ...prev, [size]: qty }));
@@ -214,11 +216,12 @@ export default function AdminDashboard() {
                 </label>
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as 'havaianas' | 'roupas')}
+                  onChange={(e) => setCategory(e.target.value as 'havaianas' | 'roupas' | 'mercado')}
                   className="mt-2 w-full bg-transparent border-b border-neutral-200 py-3 outline-none focus:border-[var(--accent-blue)] transition-all text-black font-medium appearance-none cursor-pointer"
                 >
                   <option value="havaianas">Havaianas Premium</option>
                   <option value="roupas">Roupas de Elite</option>
+                  <option value="mercado">Mercado</option>
                 </select>
               </div>
 

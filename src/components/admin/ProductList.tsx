@@ -13,7 +13,7 @@ type ProductListProps = {
 export default function ProductList({ onEdit }: ProductListProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'havaianas' | 'roupas'>('all');
+  const [filter, setFilter] = useState<'all' | 'havaianas' | 'roupas' | 'mercado'>('all');
 
   // Buscar produtos do Firestore
   const fetchProducts = async () => {
@@ -94,7 +94,7 @@ export default function ProductList({ onEdit }: ProductListProps) {
         
         {/* Filtros */}
         <div className="flex gap-2">
-          {(['all', 'havaianas', 'roupas'] as const).map((cat) => (
+          {(['all', 'havaianas', 'roupas', 'mercado'] as const).map((cat) => (
             <button
               key={cat}
               onClick={() => setFilter(cat)}
@@ -104,7 +104,7 @@ export default function ProductList({ onEdit }: ProductListProps) {
                   : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
               }`}
             >
-              {cat === 'all' ? 'Todos' : cat === 'havaianas' ? 'Havaianas' : 'Roupas'}
+              {cat === 'all' ? 'Todos' : cat === 'havaianas' ? 'Havaianas' : cat === 'roupas' ? 'Roupas' : 'Mercado'}
             </button>
           ))}
         </div>
@@ -152,7 +152,7 @@ export default function ProductList({ onEdit }: ProductListProps) {
                   {/* Categoria */}
                   <td className="px-4 py-4 hidden sm:table-cell">
                     <span className="text-xs text-neutral-500 capitalize">
-                      {product.category === 'havaianas' ? 'Havaianas' : 'Roupas'}
+                      {product.category === 'havaianas' ? 'Havaianas' : product.category === 'roupas' ? 'Roupas' : 'Mercado'}
                     </span>
                   </td>
                   

@@ -30,7 +30,7 @@ export default function SobrePage() {
           <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.4em] mb-4">
             Nossa Essência
           </p>
-          <h1 className="font-[var(--font-serif)] text-4xl md:text-6xl lg:text-7xl font-light text-white mb-6">
+          <h1 className="font-[var(--font-serif)] text-3xl md:text-4xl font-light text-white mb-6">
             SOBRE A <span className="font-bold text-[#D4AF37] not-italic">HADARAH</span>
           </h1>
           <p className="text-[#A3A3A3] text-sm md:text-base max-w-2xl mx-auto">

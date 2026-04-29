@@ -13,6 +13,9 @@
   --border-color: #2A2A2A;
   --secondary-bg: #141414;
   --text-muted: #6B6B6B;
+  --primary-card-bg: #141414;
+  --primary-border: #2A2A2A;
+  --accent-gold-light: #E5C158;
 }
 
 @theme {

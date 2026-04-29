@@ -125,9 +125,9 @@ export default function Home() {
             Adornada com beleza
           </p>
 
-          <h1 className="font-[var(--font-serif)] text-4xl font-light leading-tight text-white md:text-6xl">
+          <h1 className="font-[var(--font-serif)] text-3xl font-light leading-tight text-white md:text-4xl">
             HADARAH
-            <span className="mt-2 block text-4xl font-bold not-italic text-[var(--accent-gold)] md:text-6xl">
+            <span className="mt-2 block text-2xl font-bold not-italic text-[var(--accent-gold)] md:text-3xl">
               Store
             </span>
           </h1>
@@ -344,30 +344,30 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#141414] py-32">
+      <section className="bg-[#111111] py-32">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <h2 className="mb-16 text-4xl font-light text-white">
+          <h2 className="mb-12 text-3xl md:text-4xl font-light text-white">
             O que dizem nossos clientes
           </h2>
 
-          <div className="grid gap-10 md:grid-cols-3">
-            <div className="border border-[#2A2A2A] p-8">
-              <p className="text-[#A3A3A3]">
-                "A qualidade das peças é impressionante."
-              </p>
-            </div>
-
-            <div className="border border-[#2A2A2A] p-8">
-              <p className="text-[#A3A3A3]">
-                "Experiência premium do começo ao fim."
-              </p>
-            </div>
-
-            <div className="border border-[#2A2A2A] p-8">
-              <p className="text-[#A3A3A3]">
-                "Entrega rápida e acabamento impecável."
-              </p>
-            </div>
+          <div className="grid gap-8 md:grid-cols-3">
+            {[{
+              quote: 'A qualidade das peças é impressionante.',
+              name: 'Mariana L.'
+            }, {
+              quote: 'Experiência premium do começo ao fim.',
+              name: 'Carlos M.'
+            }, {
+              quote: 'Entrega rápida e acabamento impecável.',
+              name: 'Beatriz S.'
+            }].map((item, idx) => (
+              <div key={idx} className="p-8 bg-[#111111] border border-[#1f1f1f] rounded-md shadow-sm">
+                <div className="text-[#D4AF37] text-4xl leading-none mb-4">“</div>
+                <p className="text-[#A3A3A3] mb-6">{item.quote}</p>
+                <div className="text-sm font-bold text-white">{item.name}</div>
+                <div className="text-[10px] text-[#6B6B6B] uppercase tracking-wider">Cliente Hadarah</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

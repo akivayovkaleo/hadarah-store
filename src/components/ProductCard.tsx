@@ -56,8 +56,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           
           {/* Badge de Categoria */}
           <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-            <span className="bg-white/90 backdrop-blur-sm text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5">
-              {product.category === 'havaianas' ? 'Havaianas' : 'Coleção'}
+              <span className="bg-white/90 backdrop-blur-sm text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5">
+              {product.category === 'havaianas' ? 'Havaianas' : product.category === 'roupas' ? 'Roupas' : 'Mercado'}
             </span>
           </div>
 

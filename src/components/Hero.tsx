@@ -67,7 +67,7 @@ export default function Hero() {
           <h1
             className={`
               font-[var(--font-serif)] 
-              text-4xl md:text-6xl 
+              text-3xl md:text-4xl 
               font-light 
               text-white 
               mb-6 md:mb-8
@@ -78,7 +78,7 @@ export default function Hero() {
             style={{ transitionDelay: '400ms' }}
           >
             HADARAH
-            <span className="block text-[#D4AF37] font-bold text-3xl md:text-5xl lg:text-6xl mt-2 not-italic">
+            <span className="block text-[#D4AF37] font-bold text-2xl md:text-3xl mt-2 not-italic">
               Store
             </span>
           </h1>
@@ -109,43 +109,12 @@ export default function Hero() {
             `}
             style={{ transitionDelay: '800ms' }}
           >
-            <Link
-              href="#colecao"
-              className="
-                group relative 
-                inline-flex items-center justify-center
-                px-10 py-4 
-                border border-[#D4AF37] 
-                text-[#D4AF37] 
-                bg-transparent
-                text-[11px] font-bold uppercase tracking-[0.3em]
-                transition-all duration-500 ease-out
-                hover:bg-[#D4AF37] hover:text-[#0F0F0F]
-                focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]
-              "
-            >
-              <span className="relative z-10">Explorar Coleção</span>
-              {/* Efeito de brilho no hover */}
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+            <Link href="#colecao" className="px-10 py-4 border border-[#D4AF37] text-[#D4AF37] bg-transparent text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-[#D4AF37] hover:text-black transition-all duration-300">
+              Explorar Coleção
             </Link>
             
-            <Link
-              href="#sobre"
-              className="
-                group relative 
-                inline-flex items-center justify-center
-                px-10 py-4 
-                border border-white/30 
-                text-white 
-                bg-white/5
-                text-[11px] font-bold uppercase tracking-[0.3em]
-                transition-all duration-500 ease-out
-                hover:bg-white hover:text-[#0F0F0F] hover:border-white
-                backdrop-blur-sm
-                focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-[#0F0F0F]
-              "
-            >
-              <span className="relative z-10">Nossa História</span>
+            <Link href="#sobre" className="px-10 py-4 border border-white/40 text-white bg-transparent text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300">
+              Nossa História
             </Link>
           </div>
         </div>

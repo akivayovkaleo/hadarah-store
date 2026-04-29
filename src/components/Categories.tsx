@@ -8,24 +8,24 @@ import Link from 'next/link';
 const categories = [
   {
     id: 1,
-    name: 'JOIAS',
-    description: 'Peças artesanais com detalhes em ouro',
-    image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=2070',
-    href: '/colecao/joias',
+    name: 'Novidades',
+    description: 'Lançamentos e edições limitadas.',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600',
+    href: '/colecao/novidades',
   },
   {
     id: 2,
-    name: 'ROUPAS',
-    description: 'Cortes atemporais e tecidos premium',
-    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=2070',
-    href: '/colecao/roupas',
+    name: 'Essenciais',
+    description: 'Peças atemporais para o guarda-roupa.',
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600',
+    href: '/colecao/essenciais',
   },
   {
     id: 3,
-    name: 'ACESSÓRIOS',
-    description: 'Detalhes que completam a elegância',
-    image: 'https://images.unsplash.com/photo-1576053139778-7e32f2ae3cfd?auto=format&fit=crop&q=80&w=2070',
-    href: '/colecao/acessorios',
+    name: 'Exclusivos',
+    description: 'Coleções premium e parcerias especiais.',
+    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600',
+    href: '/colecao/exclusivos',
   },
 ];
 
