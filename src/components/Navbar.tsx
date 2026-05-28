@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useCart } from '@/src/hooks/useCart';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { itemCount } = useCart();
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 24);
@@ -65,10 +67,14 @@ export default function Navbar() {
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             </button>
 
-            <button aria-label="Carrinho" className="relative rounded-full border border-white/20 p-2 text-white/80 hover:border-[#D4AF37]/70 hover:text-[#D4AF37] md:inline-flex">
+            <Link href="/carrinho" aria-label="Carrinho" className="relative rounded-full border border-white/20 p-2 text-white/80 hover:border-[#D4AF37]/70 hover:text-[#D4AF37] inline-flex">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6h15l-1.5 9h-13z" /><circle cx="9" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>
-              <span className="absolute -top-1 -right-1 min-w-[1.25rem] rounded-full bg-[#D4AF37] px-1.5 py-0.5 text-[10px] font-black text-black leading-none text-center">2</span>
-            </button>
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[1.25rem] rounded-full bg-[#D4AF37] px-1.5 py-0.5 text-[10px] font-black text-black leading-none text-center">
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
+            </Link>
 
             <button className="inline-flex items-center justify-center rounded-md border border-white/20 p-2 text-white md:hidden" aria-label="Abrir menu" onClick={() => setIsMobileMenuOpen(true)}>
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -87,6 +93,14 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <Link href="/carrinho" className="flex items-center justify-between text-sm uppercase tracking-[0.2em] text-white hover:text-[#D4AF37] pt-4 border-t border-[#2A2A2A]">
+              <span>Carrinho</span>
+              {itemCount > 0 && (
+                <span className="min-w-[1.25rem] rounded-full bg-[#D4AF37] px-1.5 py-0.5 text-[10px] font-black text-black leading-none text-center">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </header>

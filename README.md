@@ -1,103 +1,121 @@
-# Hadarah Store - Luxury E-commerce
+# Hadarah Store
 
-Este é o projeto da **Hadarah Store**, uma plataforma de e-commerce de luxo inspirada em grandes marcas da moda mundial. O projeto oferece uma experiência de compra sofisticada e exclusiva, focada em Havaianas personalizadas e vestuário de alta qualidade.
+E-commerce de luxo para Havaianas personalizadas e vestuário premium. Experiência de compra sofisticada com design minimalista e integração completa de pagamentos.
 
-## 🎯 Objetivo do Projeto
+## Tech Stack
 
-O objetivo principal é criar uma vitrine digital premium que combine uma estética minimalista e luxuosa com funcionalidades robustas de e-commerce. A Hadarah Store busca elevar a percepção de valor dos produtos através de um design refinado, animações suaves e um processo de checkout fluido e seguro.
+| Camada | Tecnologia |
+|--------|-----------|
+| Framework | Next.js 16.1.6 (App Router) |
+| UI | React 19 + Tailwind CSS v4 |
+| Banco de dados | Firebase Firestore |
+| Autenticação | Firebase Auth |
+| Storage | Firebase Storage |
+| Pagamentos | PagBank API (PIX, Boleto, Crédito) |
+| Linguagem | TypeScript (strict mode) |
 
-## 🛠️ Tech Stack
+## Funcionalidades
 
-- **Framework:** Next.js 16.1.6 (App Router)
-- **Estilização:** Tailwind CSS v4
-- **Backend:** Firebase (Firestore, Authentication, Storage)
-- **Pagamentos:** PagBank API (Pix, Cartão de Crédito, Boleto)
-- **Tipagem:** TypeScript
+- **Vitrine de produtos** — listagem por categoria (Havaianas / Roupas), filtros e página de detalhe com seleção de tamanho e controle de estoque em tempo real
+- **Carrinho global** — persistido em localStorage, badge dinâmico no Navbar, validação de estoque máximo por tamanho
+- **Checkout em 3 etapas** — dados de entrega → endereço → pagamento
+- **Pagamentos via PagBank**
+  - PIX: QR Code + copia-e-cola, expira em 30 min
+  - Boleto: linha digitável + download do PDF
+  - Cartão de crédito: estruturado (requer tokenização via PagBank.js)
+- **Página de status do pedido** — polling automático a cada 3s enquanto pendente, exibe dados de pagamento (QR code PIX, barcode boleto)
+- **Webhook PagBank** — validação HMAC-SHA256, decremento atômico de estoque via Firestore transaction
+- **Área administrativa** — CRUD de produtos com upload de imagens para Firebase Storage, protegida por Firebase Auth
 
-## 📂 Estrutura de Arquivos Principal
+## Configuração
 
-Abaixo estão os caminhos dos arquivos e diretórios fundamentais para o funcionamento do projeto:
+### 1. Instalar dependências
 
-### Páginas e Rotas (`src/app/`)
-- `src/app/page.tsx`: Página inicial com destaques e vitrine principal.
-- `src/app/produto/[id]/page.tsx`: Detalhes do produto e seleção de variações.
-- `src/app/carrinho/page.tsx`: Gerenciamento de itens selecionados.
-- `src/app/checkout/page.tsx`: Fluxo de finalização de compra e pagamento.
-- `src/app/admin/`: Área administrativa para gestão de produtos e pedidos.
-- `src/app/api/payments/pagbank/`: Endpoints para integração com o gateway de pagamento.
+```bash
+npm install
+```
 
-### Componentes (`src/components/`)
-- `src/components/Navbar.tsx`: Navegação principal.
-- `src/components/Hero.tsx`: Banner de impacto da página inicial.
-- `src/components/ProductCard.tsx`: Card de exibição de produto individual.
-- `src/components/LuxuryCursor.tsx`: Cursor customizado para experiência premium.
+### 2. Variáveis de ambiente
 
-### Serviços e Lógica (`src/services/` & `src/lib/`)
-- `src/services/firebase.ts`: Configuração e inicialização do Firebase.
-- `src/services/payments/pagbank.ts`: Integração lógica com a API do PagBank.
-- `src/lib/env.ts`: Gerenciamento centralizado de variáveis de ambiente.
+Criar `.env.local` na raiz:
 
-## 📊 Estrutura de Dados
+```env
+# Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
 
-O projeto utiliza os seguintes modelos de dados principais:
+# PagBank
+PAGBANK_TOKEN=
+PAGBANK_API_URL=https://sandbox.api.pagseguro.com
+PAGBANK_WEBHOOK_SECRET=
 
-### Produto (`Product`)
-Localizado em: `src/types/product.ts`
+# URL pública (para callback do webhook)
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
+
+### 3. Rodar localmente
+
+```bash
+npm run dev
+```
+
+Acesse [http://localhost:3000](http://localhost:3000).
+
+Para testar webhooks localmente, use [ngrok](https://ngrok.com) e configure `NEXT_PUBLIC_BASE_URL` com a URL pública gerada. Deixe `PAGBANK_WEBHOOK_SECRET` vazio para pular a validação HMAC em desenvolvimento.
+
+## Estrutura de Rotas
+
+| Rota | Descrição |
+|------|-----------|
+| `/` | Home — produtos em destaque |
+| `/colecao/[categoria]` | Listagem por categoria |
+| `/produto/[id]` | Detalhe do produto |
+| `/carrinho` | Carrinho de compras |
+| `/checkout` | Fluxo de pagamento |
+| `/pedido/[id]` | Status do pedido (polling) |
+| `/admin` | Área administrativa |
+| `/api/payments/pagbank/create` | POST — criar pedido |
+| `/api/payments/pagbank/webhook` | POST — webhook PagBank |
+
+## Modelos de Dados
+
+### Produto
 ```typescript
 {
-  id: string;
   name: string;
   price: number;
   category: 'havaianas' | 'roupas';
   imageUrl: string;
-  sizes: { [key: string]: number }; // Ex: { "37-38": 5, "M": 2 }
+  sizes: Record<string, number>;  // { "37-38": 5, "M": 2 }
   description?: string;
   active: boolean;
-  createdAt: string;
 }
 ```
 
-### Pedido/Checkout (`CheckoutOrder`)
-Localizado em: `src/types/order.ts`
+### Pedido
 ```typescript
 {
   referenceId: string;
-  customer: {
-    name: string;
-    email: string;
-    taxId: string;
-    phone: string;
-  };
-  items: Array<{
-    id: string;
-    name: string;
-    quantity: number;
-    price: number;
-    image?: string;
-    size?: string;
-  }>;
-  address: {
-    street: string;
-    number: string;
-    complement?: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-    postalCode: string;
-  };
+  status: 'pending' | 'paid' | 'failed' | 'cancelled';
+  customer: { name, email, taxId, phone };
+  items: Array<{ id, name, quantity, price, size? }>;
+  address: { street, number, complement?, neighborhood, city, state, postalCode };
   shipping: number;
   total: number;
   paymentMethod: 'credit_card' | 'pix' | 'boleto';
+  paymentData?: { pixQrCode?, pixQrCodeText?, boletoUrl?, boletoBarcode? };
 }
 ```
 
-## 🚀 Desenvolvimento
-
-Para rodar o projeto localmente:
+## Scripts
 
 ```bash
-npm install
-npm run dev
+npm run dev      # Desenvolvimento
+npm run build    # Build de produção
+npm run start    # Servidor de produção
+npm run lint     # Verificação de código
 ```
-
-Crie um arquivo `.env.local` com as credenciais necessárias do Firebase e PagBank.

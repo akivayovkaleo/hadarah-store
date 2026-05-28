@@ -9,17 +9,20 @@ import { db } from '@/src/services/firebase';
 import { Product } from '@/src/types/product';
 import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
+import { useCart } from '@/src/hooks/useCart';
 
 export default function ProdutoPage() {
   const params = useParams();
   const productId = params.id as string;
   
+  const { addItem } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
 
   // Buscar produto do Firebase
   useEffect(() => {
@@ -45,21 +48,17 @@ export default function ProdutoPage() {
     }
   }, [productId]);
 
-  // Adicionar ao carrinho (simulação)
-  const handleAddToCart = async () => {
-    if (!selectedSize) {
-      alert('Por favor, selecione um tamanho.');
-      return;
-    }
+  const handleAddToCart = () => {
+    if (!selectedSize || !product) return;
 
     setIsAdding(true);
-    
-    // Simulação de adição ao carrinho
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    alert(`Produto adicionado ao carrinho!\n\n${product?.name}\nTamanho: ${selectedSize}\nQuantidade: ${quantity}`);
-    
-    setIsAdding(false);
+    addItem(product, selectedSize, quantity);
+
+    setTimeout(() => {
+      setIsAdding(false);
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 3000);
+    }, 400);
   };
 
   // Loading state
@@ -99,11 +98,10 @@ export default function ProdutoPage() {
     );
   }
 
-  // Calcular estoque total
+  const allSizes = Object.entries(product.sizes || {});
   const totalStock = Object.values(product.sizes || {}).reduce((a, b) => a + b, 0);
-  const availableSizes = Object.entries(product.sizes || {})
-    .filter(([_, qty]) => qty > 0)
-    .map(([size]) => size);
+  const selectedSizeStock = selectedSize ? (product.sizes[selectedSize] ?? 0) : 0;
+  const canAddToCart = selectedSize !== null && selectedSizeStock > 0;
 
   return (
     <div className="min-h-screen bg-[#0F0F0F]">
@@ -197,7 +195,7 @@ em exclusividade e sofisticação.`}
             </div>
 
             {/* Tamanho */}
-            {availableSizes.length > 0 && (
+            {allSizes.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <label className="text-sm font-medium text-white uppercase tracking-wider">
@@ -207,16 +205,18 @@ em exclusividade e sofisticação.`}
                     Guia de tamanhos
                   </button>
                 </div>
-                
+
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {availableSizes.map((size) => (
+                  {allSizes.map(([size, stock]) => (
                     <button
                       key={size}
-                      onClick={() => setSelectedSize(size)}
+                      onClick={() => stock > 0 ? setSelectedSize(size) : undefined}
+                      disabled={stock === 0}
                       className={`
                         py-3 px-4 border text-sm font-medium transition-all duration-300
-                        ${
-                          selectedSize === size
+                        ${stock === 0
+                          ? 'border-[#1A1A1A] text-[#3A3A3A] cursor-not-allowed line-through'
+                          : selectedSize === size
                             ? 'border-[#D4AF37] bg-[#D4AF37]/10 text-[#D4AF37]'
                             : 'border-[#2A2A2A] text-[#A3A3A3] hover:border-[#D4AF37]/50 hover:text-white'
                         }
@@ -227,9 +227,14 @@ em exclusividade e sofisticação.`}
                   ))}
                 </div>
 
-                {totalStock < 10 && totalStock > 0 && (
+                {selectedSize && selectedSizeStock > 0 && selectedSizeStock < 5 && (
                   <p className="mt-3 text-sm text-orange-400">
-                    ⚡ Apenas {totalStock} unidades disponíveis
+                    ⚡ Apenas {selectedSizeStock} {selectedSizeStock === 1 ? 'unidade' : 'unidades'} neste tamanho
+                  </p>
+                )}
+                {!selectedSize && totalStock > 0 && totalStock < 10 && (
+                  <p className="mt-3 text-sm text-orange-400">
+                    ⚡ Restam poucas unidades
                   </p>
                 )}
               </div>
@@ -249,8 +254,9 @@ em exclusividade e sofisticação.`}
                 </button>
                 <span className="w-12 text-center text-lg font-medium text-white">{quantity}</span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-12 h-12 border border-[#2A2A2A] flex items-center justify-center text-white hover:border-[#D4AF37] transition-colors"
+                  onClick={() => setQuantity(prev => Math.min(prev + 1, selectedSizeStock || 1))}
+                  disabled={selectedSizeStock > 0 && quantity >= selectedSizeStock}
+                  className="w-12 h-12 border border-[#2A2A2A] flex items-center justify-center text-white hover:border-[#D4AF37] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   +
                 </button>
@@ -259,9 +265,14 @@ em exclusividade e sofisticação.`}
 
             {/* Botão Adicionar ao Carrinho */}
             <div className="space-y-4">
+              {!selectedSize && totalStock > 0 && (
+                <p className="text-[11px] text-[#D4AF37] uppercase tracking-wider text-center">
+                  Selecione um tamanho
+                </p>
+              )}
               <button
                 onClick={handleAddToCart}
-                disabled={isAdding || availableSizes.length === 0}
+                disabled={isAdding || !canAddToCart}
                 className="
                   w-full
                   py-4
@@ -287,7 +298,7 @@ em exclusividade e sofisticação.`}
                 )}
               </button>
 
-              {availableSizes.length === 0 && (
+              {totalStock === 0 && (
                 <p className="text-center text-sm text-red-400">
                   Produto temporariamente esgotado
                 </p>
@@ -349,6 +360,29 @@ em exclusividade e sofisticação.`}
       </section>
 
       <Footer />
+
+      {/* Toast de confirmação */}
+      <div
+        className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-4 bg-[#141414] border border-[#D4AF37]/40 shadow-2xl transition-all duration-300 whitespace-nowrap ${
+          toastVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+      >
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#D4AF37]/20">
+          <svg className="w-4 h-4 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div>
+          <p className="text-white text-sm font-medium">Adicionado ao carrinho!</p>
+          <p className="text-[#6B6B6B] text-xs">{product?.name} — Tam. {selectedSize}</p>
+        </div>
+        <Link
+          href="/carrinho"
+          className="ml-2 text-[10px] text-[#D4AF37] font-black uppercase tracking-wider hover:underline"
+        >
+          Ver carrinho →
+        </Link>
+      </div>
     </div>
   );
 }
