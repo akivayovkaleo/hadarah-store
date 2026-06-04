@@ -5,77 +5,99 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/src/types/product';
 
-interface ProductCardProps {
-  product: Product;
-}
+export default function ProductCard({ product }: { product: Product }) {
+  const [hovered, setHovered] = useState(false);
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMousePosition({ x, y });
-  };
-
-  const handleMouseLeave = () => {
-    setMousePosition({ x: 0, y: 0 });
-  };
+  const primarySrc = product.imageUrl || product.image || '';
+  const hoverSrc = product.imageUrlHover ?? null;
 
   return (
-    <Link href={`/produto/${product.id}`}>
+    <Link href={`/produto/${product.id}`} className="group block">
       <div
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="group relative cursor-pointer rounded-sm border border-[#2A2A2A] bg-[#141414] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#D4AF37]"
-        style={{
-          transform: `
-            perspective(1000px)
-            rotateY(${mousePosition.x * 5}deg)
-            rotateX(${-mousePosition.y * 5}deg)
-            scale(${1 + Math.sqrt(mousePosition.x ** 2 + mousePosition.y ** 2) * 0.02})
-          `,
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className="relative"
       >
-        {/* Imagem com Overlay Gradual */}
-        <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[#1A1A1A]">
+        {/* ── Image container ── */}
+        <div className="relative aspect-[3/4] overflow-hidden bg-[#F2EDE8]">
+
+          {/* Primary image */}
           <Image
-            src={product.imageUrl}
+            src={primarySrc}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105 hover:scale-105"
-            sizes="(max-width: 768px) 50vw, 33vw"
-            priority={false}
+            sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
             loading="lazy"
+            quality={85}
+            className={[
+              'object-cover transition-all duration-[400ms] ease-in-out group-hover:scale-[1.05]',
+              hoverSrc && hovered ? 'opacity-0' : 'opacity-100',
+            ].join(' ')}
           />
-          
-          {/* Overlay que aparece no hover */}
-          <div className="absolute inset-0 bg-[#0F0F0F]/0 group-hover:bg-[#0F0F0F]/20 transition-colors duration-500" />
-          
-          {/* Badge de Categoria */}
-          <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-              <span className="bg-white/90 backdrop-blur-sm text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5">
-              {product.category === 'havaianas' ? 'Havaianas' : product.category === 'roupas' ? 'Roupas' : 'Mercado'}
-            </span>
-          </div>
 
-          {/* Botão "Ver Produto" */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
-            <button className="w-full bg-white text-black text-xs font-bold uppercase tracking-[0.2em] py-3 hover:bg-[var(--accent-gold)] transition-colors">
+          {/* Hover / second image — crossfade */}
+          {hoverSrc && (
+            <Image
+              src={hoverSrc}
+              alt={`${product.name} — vista alternativa`}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              loading="lazy"
+              quality={85}
+              className={[
+                'object-cover transition-opacity duration-[400ms] ease-in-out scale-[1.05]',
+                hovered ? 'opacity-100' : 'opacity-0',
+              ].join(' ')}
+            />
+          )}
+
+          {/* Dark overlay */}
+          <div
+            className={[
+              'absolute inset-0 transition-colors duration-[400ms]',
+              hovered ? 'bg-black/28' : 'bg-black/0',
+            ].join(' ')}
+          />
+
+          {/* "Ver Produto" CTA — centralizado */}
+          <div
+            className={[
+              'absolute inset-0 flex items-center justify-center transition-all duration-300',
+              hovered ? 'opacity-100' : 'opacity-0',
+            ].join(' ')}
+          >
+            <span className="border border-white text-white text-[11px] font-bold uppercase tracking-[0.3em] px-6 py-3">
               Ver Produto
-            </button>
+            </span>
           </div>
         </div>
 
-        {/* Informações do Produto */}
-        <div className="mt-4 space-y-1">
-          <h3 className="text-sm font-[var(--font-serif)] font-light text-white group-hover:text-[#D4AF37] transition-colors duration-300 tracking-wide leading-tight">
+        {/* ── Product info ── */}
+        <div className="mt-4 space-y-1.5">
+
+          {/* Name with animated underline */}
+          <h3 className="text-sm font-light text-[#1A1A1A] leading-tight relative inline-block"
+              style={{ fontFamily: 'var(--font-playfair)' }}>
             {product.name}
+            <span
+              className={[
+                'absolute bottom-0 left-0 h-px bg-[#1A1A1A] transition-all duration-300 ease-out',
+                hovered ? 'w-full' : 'w-0',
+              ].join(' ')}
+            />
           </h3>
-          <p className="text-xs text-[#A3A3A3] leading-relaxed">
-            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+
+          {/* Price — accent color on hover */}
+          <p
+            className={[
+              'text-sm font-medium transition-colors duration-300',
+              hovered ? 'text-[#C8A882]' : 'text-[#6B6B6B]',
+            ].join(' ')}
+          >
+            {new Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            }).format(product.price)}
           </p>
         </div>
       </div>

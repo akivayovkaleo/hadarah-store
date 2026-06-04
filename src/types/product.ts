@@ -1,11 +1,12 @@
 export interface Product {
-  image: string;
   id: string;
   name: string;
   price: number;
   category: 'havaianas' | 'roupas' | 'mercado';
   imageUrl: string;
-  sizes: { [key: string]: number }; // Ex: { "37-38": 5, "M": 2 }
+  imageUrlHover?: string;
+  image: string;
+  sizes: { [key: string]: number };
   description?: string;
   active: boolean;
   createdAt: string;
