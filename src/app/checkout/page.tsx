@@ -2,36 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
-
-// gera um número de pedido aleatório
-function generateOrderNumber() {
-  return Math.random().toString(36).substr(2, 9).toUpperCase();
-}
-
-// Tipo do item do carrinho
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  size: string;
-  quantity: number;
-}
+import { useCart } from '@/src/hooks/useCart';
 
 export default function CheckoutPage() {
-  const [step, setStep] = useState<'cart' | 'shipping' | 'payment' | 'confirmation'>('shipping');
+  const router = useRouter();
+  const { items: cartItems, total: cartTotal, clearCart, isHydrated } = useCart();
+  const [step, setStep] = useState<'cart' | 'shipping' | 'payment'>('shipping');
   const [loading, setLoading] = useState(false);
 
-  // gerar número de pedido quando chegamos à etapa de confirmação
-  const [orderNumber, setOrderNumber] = useState('');
+  // Redirecionar para o carrinho se o usuário acessar /checkout com carrinho vazio.
+  // Aguarda a hidratação do localStorage para não redirecionar no SSR.
   useEffect(() => {
-    if (step === 'confirmation') {
-      setOrderNumber(generateOrderNumber());
+    if (isHydrated && cartItems.length === 0) {
+      router.replace('/carrinho');
     }
-  }, [step]);
+  }, [isHydrated, cartItems.length, router]);
 
   // Dados do formulário
   const [formData, setFormData] = useState({
@@ -63,28 +51,7 @@ export default function CheckoutPage() {
     shippingMethod: 'standard',
   });
 
-  // Dados do carrinho (simulado)
-  const cartItems: CartItem[] = [
-    {
-      id: '1',
-      name: 'Havaiana Signature Gold',
-      price: 299.90,
-      image: 'https://images.unsplash.com/photo-1603487742131-4160d6986ba2?auto=format&fit=crop&q=80&w=800',
-      size: '39-40',
-      quantity: 1,
-    },
-    {
-      id: '2',
-      name: 'Vestido Longo Elegance',
-      price: 899.90,
-      image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=800',
-      size: 'M',
-      quantity: 1,
-    },
-  ];
-
-  // Calcular totais
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cartTotal;
   const shipping = formData.shippingMethod === 'express' ? 49.90 : 29.90;
   const total = subtotal + shipping;
 
@@ -141,7 +108,14 @@ export default function CheckoutPage() {
             state: formData.state,
             postalCode: formData.zipCode.replace(/\D/g, ''),
           },
-          items: cartItems,
+          items: cartItems.map(item => ({
+            id: item.id,
+            name: `${item.name} (Tam. ${item.size})`,
+            quantity: item.quantity,
+            price: item.price,
+            image: item.imageUrl,
+            size: item.size,
+          })),
           shipping,
           total,
           paymentMethod: formData.paymentMethod,
@@ -150,12 +124,12 @@ export default function CheckoutPage() {
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !result.success) {
         throw new Error(result.message || 'Erro ao processar pagamento');
       }
 
-      console.log('PagBank Result:', result);
-      setStep('confirmation');
+      clearCart();
+      router.push(`/pedido/${result.orderId as string}`);
     } catch (error) {
       console.error('Erro no checkout:', error);
       const message = error instanceof Error ? error.message : 'Erro ao processar seu pedido. Por favor, tente novamente.';
@@ -164,91 +138,6 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
-
-  // Página de Confirmação
-  if (step === 'confirmation') {
-    
-    return (
-      <div className="min-h-screen bg-[#0F0F0F]">
-        <Navbar />
-        <main className="max-w-3xl mx-auto px-6 py-24">
-          <div className="text-center py-24">
-            {/* Ícone de Sucesso */}
-            <div className="w-20 h-20 mx-auto mb-8 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
-              <svg className="w-10 h-10 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-
-            <h1 className="font-[var(--font-serif)] text-3xl md:text-4xl font-light text-white mb-4">
-              Pedido Confirmado!
-            </h1>
-            <p className="text-[#A3A3A3] text-sm mb-2">
-              Número do pedido: <span className="text-[#D4AF37] font-bold">{orderNumber}</span>
-            </p>
-            <p className="text-[#A3A3A3] text-sm mb-8 max-w-md mx-auto">
-              Enviamos um e-mail de confirmação para <strong>{formData.email}</strong>. 
-              Você receberá o código de rastreio em até 24h úteis.
-            </p>
-
-            <div className="p-6 bg-[#141414] border border-[#2A2A2A] rounded-sm mb-8">
-              <h2 className="text-white font-medium mb-4 text-left">Resumo do Pedido</h2>
-              <div className="space-y-3 text-sm text-left">
-                <div className="flex justify-between">
-                  <span className="text-[#A3A3A3]">Subtotal</span>
-                  <span className="text-white">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(subtotal)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#A3A3A3]">Frete</span>
-                  <span className="text-white">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(shipping)}
-                  </span>
-                </div>
-                <div className="flex justify-between pt-4 border-t border-[#2A2A2A]">
-                  <span className="text-[#D4AF37] font-bold">Total</span>
-                  <span className="text-[#D4AF37] font-bold">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/colecao"
-                className="
-                  px-10 py-4
-                  bg-[#D4AF37]
-                  text-[#0F0F0F]
-                  text-[11px] font-black uppercase tracking-[0.3em]
-                  hover:bg-[#D4AF37]/90
-                  transition-all duration-300
-                "
-              >
-                Continuar Comprando
-              </Link>
-              <Link
-                href="/pedidos"
-                className="
-                  px-10 py-4
-                  border border-[#D4AF37]
-                  text-[#D4AF37]
-                  text-[11px] font-black uppercase tracking-[0.3em]
-                  hover:bg-[#D4AF37] hover:text-[#0F0F0F]
-                  transition-all duration-300
-                "
-              >
-                Acompanhar Pedido
-              </Link>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#0F0F0F]">
@@ -274,8 +163,8 @@ export default function CheckoutPage() {
           ============================================ */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex items-center justify-center">
-          {['Carrinho', 'Entrega', 'Pagamento', 'Confirmação'].map((label, index) => {
-            const steps = ['cart', 'shipping', 'payment', 'confirmation'];
+          {['Carrinho', 'Entrega', 'Pagamento'].map((label, index) => {
+            const steps = ['cart', 'shipping', 'payment'];
             const currentIndex = steps.indexOf(step);
             const isCompleted = index < currentIndex;
             const isCurrent = index === currentIndex;
@@ -295,7 +184,7 @@ export default function CheckoutPage() {
                     {label}
                   </span>
                 </div>
-                {index < 3 && (
+                {index < 2 && (
                   <div className={`w-12 md:w-24 h-0.5 mx-4 ${isCompleted ? 'bg-[#D4AF37]' : 'bg-[#2A2A2A]'}`} />
                 )}
               </div>
@@ -620,14 +509,14 @@ export default function CheckoutPage() {
                 {/* Produtos */}
                 <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="flex gap-4">
-                      <div className="w-16 h-20 flex-shrink-0 overflow-hidden rounded-sm bg-[#1A1A1A]">
+                    <div key={`${item.id}-${item.size}`} className="flex gap-4">
+                      <div className="w-16 h-20 flex-shrink-0 overflow-hidden rounded-sm bg-[#1A1A1A] relative">
                         <Image
-                          src={item.image}
+                          src={item.imageUrl}
                           alt={item.name}
-                          width={64}
-                          height={80}
-                          className="object-cover w-full h-full"
+                          fill
+                          sizes="64px"
+                          className="object-cover"
                         />
                       </div>
                       <div className="flex-1">

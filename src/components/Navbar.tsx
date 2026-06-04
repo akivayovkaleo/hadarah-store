@@ -4,25 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const NAV_LINKS = [
-  { name: 'Roupas', href: '/colecao/roupas' },
-  { name: 'Havaianas', href: '/colecao/havaianas' },
-  { name: 'Mercado', href: '/colecao/mercado' },
-  { name: 'Sobre', href: '/sobre' },
-  { name: 'Contato', href: '/contato' },
-];
-
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [cartBouncing, setCartBouncing] = useState(false);
   const pathname = usePathname();
-  const cartRef = useRef<HTMLButtonElement>(null);
-
-  if (pathname?.startsWith('/admin')) return null;
-
-  const isHome = pathname === '/';
-  const isTransparent = isHome && !isScrolled;
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 80);
@@ -131,28 +117,9 @@ export default function Navbar() {
               </svg>
             </button>
 
-            {/* Cart */}
-            <button
-              ref={cartRef}
-              aria-label="Carrinho"
-              onClick={triggerCartBounce}
-              className={[
-                'relative rounded-full p-2 transition-colors',
-                cartBouncing ? 'cart-bounce' : '',
-                isTransparent
-                  ? 'text-white/80 hover:text-white hover:bg-white/10'
-                  : 'text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#F2EDE8]',
-              ].join(' ')}
-            >
-              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 6h15l-1.5 9h-13z" />
-                <circle cx="9" cy="20" r="1" />
-                <circle cx="18" cy="20" r="1" />
-              </svg>
-              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 rounded-full bg-[#C8A882] text-white leading-none"
-                style={{ fontSize: '11px', fontWeight: 700 }}>
-                0
-              </span>
+            <button aria-label="Carrinho" className="relative rounded-full border border-white/20 p-2 text-white/80 hover:border-[#D4AF37]/70 hover:text-[#D4AF37] md:inline-flex">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6h15l-1.5 9h-13z" /><circle cx="9" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>
+              <span className="absolute -top-1 -right-1 min-w-[1.25rem] rounded-full bg-[#D4AF37] px-1.5 py-0.5 text-[10px] font-black text-black leading-none text-center">2</span>
             </button>
 
             {/* Mobile hamburger */}
@@ -193,24 +160,13 @@ export default function Navbar() {
               </svg>
             </button>
           </div>
-
-          <nav className="flex-1 px-6 py-8 space-y-1">
-            {NAV_LINKS.map((link) => {
-              const active = pathname === link.href;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={[
-                    'block py-3 text-sm font-medium uppercase tracking-[0.2em] border-b border-[#E8E4DF] transition-colors',
-                    active ? 'text-[#C8A882]' : 'text-[#1A1A1A] hover:text-[#C8A882]',
-                  ].join(' ')}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-          </nav>
+          <div className="mt-5 flex flex-col gap-4">
+            {navLinks.map((link) => (
+              <Link key={link.name} href={link.href} className="text-sm uppercase tracking-[0.2em] text-white hover:text-[#D4AF37]">
+                {link.name}
+              </Link>
+            ))}
+          </div>
         </div>
       </header>
 

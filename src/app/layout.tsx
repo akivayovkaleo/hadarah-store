@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import "./globals.css";
 import { Playfair_Display, DM_Sans } from 'next/font/google';
 import Navbar from '@/src/components/Navbar';
-import ThemeProvider from '@/src/components/ThemeProvider';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -78,15 +77,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${playfair.variable} ${dmSans.variable}`}>
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
-        />
-      </head>
-      <body className="bg-[#FAFAF8] text-[#1A1A1A] font-sans antialiased overflow-x-hidden">
-        <ThemeProvider />
+    <html lang="pt-BR" className={`${playfair.variable} ${inter.variable}`}>
+      <body className="bg-[#0F0F0F] text-white font-sans antialiased overflow-x-hidden">
         <Navbar />
         {children}
       </body>

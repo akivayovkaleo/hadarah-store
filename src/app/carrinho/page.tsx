@@ -1,118 +1,55 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Navbar from '@/src/components/Navbar';
 import Footer from '@/src/components/Footer';
+import { useCart } from '@/src/hooks/useCart';
 
-// Tipo do item do carrinho
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  size: string;
-  quantity: number;
-  category: string;
-}
+const fmt = (n: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
 
 export default function CartPage() {
-  // Estado do carrinho (em produção, use Context ou Zustand)
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items, removeItem, updateQuantity, total } = useCart();
 
-  // Carregar carrinho (simulado - em produção viria do Firebase/Context)
-  useEffect(() => {
-    const loadCart = async () => {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Dados de exemplo (remova quando integrar com Firebase/Context)
-      const mockCart: CartItem[] = [
-        {
-          id: '1',
-          name: 'Havaiana Signature Gold',
-          price: 299.90,
-          image: 'https://images.unsplash.com/photo-1603487742131-4160d6986ba2?auto=format&fit=crop&q=80&w=800',
-          size: '39-40',
-          quantity: 1,
-          category: 'havaianas',
-        },
-        {
-          id: '2',
-          name: 'Vestido Longo Elegance',
-          price: 899.90,
-          image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=800',
-          size: 'M',
-          quantity: 1,
-          category: 'roupas',
-        },
-      ];
-      
-      setCartItems(mockCart);
-      setLoading(false);
-    };
+  const shipping = total > 0 && total <= 500 ? 29.9 : 0;
+  const orderTotal = total + shipping;
 
-    loadCart();
-  }, []);
-
-  // Atualizar quantidade
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  // Remover item
-  const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-  };
-
-  // Calcular subtotal
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 500 ? 0 : 29.90;
-  const total = subtotal + shipping;
-
-  // Carrinho vazio
-  if (!loading && cartItems.length === 0) {
+  // ─── Carrinho vazio ───────────────────────────────────────────────────────────
+  if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#0F0F0F]">
-        <Navbar />
-        <main className="max-w-7xl mx-auto px-6 py-24">
-          <div className="text-center py-24">
-            <svg
-              className="w-24 h-24 mx-auto text-[#2A2A2A] mb-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1}
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-              />
-            </svg>
-            <h1 className="font-[var(--font-serif)] text-3xl md:text-4xl font-light text-white mb-4">
-              Seu carrinho está vazio
-            </h1>
-            <p className="text-[#A3A3A3] text-sm mb-8 max-w-md mx-auto">
-              Parece que você ainda não adicionou nenhum produto. Explore nossa coleção e encontre peças exclusivas.
+      <div className="min-h-screen bg-[#0F0F0F] flex flex-col">
+        <main className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center max-w-md">
+            {/* Sacola vazia */}
+            <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-[#1A1A1A] flex items-center justify-center">
+              <svg
+                className="w-10 h-10 text-[#3A3A3A]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.2}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+            </div>
+
+            <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.4em] mb-4">
+              Carrinho
             </p>
+            <h1 className="font-[var(--font-serif)] text-3xl font-light text-white mb-4">
+              Sua sacola está vazia
+            </h1>
+            <p className="text-[#6B6B6B] text-sm leading-relaxed mb-10">
+              Explore nossa coleção e encontre peças que revelam sua elegância.
+            </p>
+
             <Link
               href="/colecao"
-              className="
-                inline-block
-                px-10 py-4
-                bg-[#D4AF37]
-                text-[#0F0F0F]
-                text-[11px] font-black uppercase tracking-[0.3em]
-                hover:bg-[#D4AF37]/90
-                transition-all duration-300
-              "
+              className="inline-block px-10 py-4 bg-[#D4AF37] text-[#0F0F0F] text-[11px] font-black uppercase tracking-[0.3em] hover:bg-[#C9A431] transition-colors duration-300"
             >
               Explorar Coleção
             </Link>
@@ -123,218 +60,215 @@ export default function CartPage() {
     );
   }
 
+  // ─── Carrinho com itens ───────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#0F0F0F]">
-      <Navbar />
-      
-      {/* ============================================
-          HERO DA PÁGINA
-          ============================================ */}
-      <section className="relative h-[30vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-10 text-center px-6">
-          <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.4em] mb-4">
+      {/* Hero */}
+      <section className="h-[28vh] flex items-end pb-10 border-b border-[#1A1A1A]">
+        <div className="max-w-7xl w-full mx-auto px-6 md:px-8">
+          <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.4em] mb-3">
             Shopping
           </p>
           <h1 className="font-[var(--font-serif)] text-4xl md:text-5xl font-light text-white">
-            CARRINHO
+            Meu Carrinho
           </h1>
         </div>
       </section>
 
-      {/* ============================================
-          CONTEÚDO PRINCIPAL
-          ============================================ */}
-      <main className="max-w-7xl mx-auto px-6 py-24">
-        {loading ? (
-          // Skeleton Loading
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <div className="lg:col-span-2 space-y-6">
-              {[1, 2].map(i => (
-                <div key={i} className="flex gap-6 p-6 bg-[#141414] animate-pulse">
-                  <div className="w-32 h-40 bg-[#1A1A1A] rounded-sm" />
-                  <div className="flex-1 space-y-4">
-                    <div className="h-6 bg-[#1A1A1A] rounded w-3/4" />
-                    <div className="h-4 bg-[#1A1A1A] rounded w-1/2" />
-                    <div className="h-4 bg-[#1A1A1A] rounded w-1/4" />
-                  </div>
-                </div>
-              ))}
+      <main className="max-w-7xl mx-auto px-6 md:px-8 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+
+          {/* ── Lista de itens ─────────────────────────────────────────────── */}
+          <div className="lg:col-span-2">
+
+            {/* Cabeçalho da lista */}
+            <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#1A1A1A]">
+              <span className="text-[#6B6B6B] text-sm">
+                {items.length} {items.length === 1 ? 'produto' : 'produtos'}
+              </span>
+              <Link href="/colecao" className="text-[11px] text-[#D4AF37] uppercase tracking-wider hover:underline">
+                ← Continuar comprando
+              </Link>
             </div>
-            <div className="h-64 bg-[#141414] animate-pulse rounded-sm" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            
-            {/* ============================================
-                LISTA DE PRODUTOS
-                ============================================ */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="flex justify-between items-center mb-8">
-                <p className="text-[#A3A3A3] text-sm">
-                  {cartItems.length} {cartItems.length === 1 ? 'produto' : 'produtos'}
-                </p>
-                <Link
-                  href="/colecao"
-                  className="text-[#D4AF37] text-sm hover:underline"
-                >
-                  Continuar comprando →
-                </Link>
-              </div>
 
-              {cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex gap-6 p-6 bg-[#141414] border border-[#2A2A2A] hover:border-[#D4AF37]/30 transition-colors"
-                >
-                  {/* Imagem */}
-                  <div className="w-32 h-40 flex-shrink-0 overflow-hidden rounded-sm bg-[#1A1A1A]">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      width={128}
-                      height={160}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
+            <ul className="space-y-px">
+              {items.map((item) => {
+                const itemTotal = item.price * item.quantity;
+                const lowStock = item.maxStock - item.quantity <= 2 && item.maxStock > 0;
 
-                  {/* Informações */}
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <p className="text-[#D4AF37] text-[9px] font-black uppercase tracking-[0.2em] mb-2">
-                        {item.category === 'havaianas' ? 'Havaianas' : 'Roupas'}
-                      </p>
-                      <h3 className="text-white font-[var(--font-serif)] text-lg mb-2">
-                        {item.name}
-                      </h3>
-                      <p className="text-[#6B6B6B] text-xs">
-                        Tamanho: <span className="text-white">{item.size}</span>
-                      </p>
-                    </div>
+                return (
+                  <li
+                    key={`${item.id}-${item.size}`}
+                    className="flex gap-5 sm:gap-6 py-8 border-b border-[#1A1A1A] group"
+                  >
+                    {/* Imagem */}
+                    <Link
+                      href={`/produto/${item.id}`}
+                      className="flex-shrink-0 w-24 h-32 sm:w-28 sm:h-36 bg-[#1A1A1A] overflow-hidden relative block"
+                    >
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        fill
+                        sizes="(max-width: 640px) 96px, 112px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </Link>
 
-                    <div className="flex items-center justify-between">
-                      {/* Quantidade */}
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-8 h-8 border border-[#2A2A2A] flex items-center justify-center text-white hover:border-[#D4AF37] transition-colors"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 text-center text-white">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-8 border border-[#2A2A2A] flex items-center justify-center text-white hover:border-[#D4AF37] transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      {/* Preço e Remover */}
-                      <div className="text-right">
-                        <p className="text-[#D4AF37] text-lg font-medium mb-2">
-                          {new Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                          }).format(item.price * item.quantity)}
+                    {/* Detalhes */}
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
+                      {/* Nome + Tamanho */}
+                      <div>
+                        <Link href={`/produto/${item.id}`}>
+                          <h2 className="text-white font-[var(--font-serif)] text-base sm:text-lg leading-snug mb-1 hover:text-[#D4AF37] transition-colors line-clamp-2">
+                            {item.name}
+                          </h2>
+                        </Link>
+                        <p className="text-[#6B6B6B] text-xs uppercase tracking-wider mb-1">
+                          Tamanho: <span className="text-[#A3A3A3]">{item.size}</span>
                         </p>
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="text-[10px] text-[#6B6B6B] hover:text-red-400 uppercase tracking-wider transition-colors"
-                        >
-                          Remover
-                        </button>
+                        {/* Preço unitário */}
+                        <p className="text-[#6B6B6B] text-xs">
+                          {fmt(item.price)} / unidade
+                        </p>
+                        {/* Aviso de estoque baixo */}
+                        {lowStock && (
+                          <p className="mt-2 text-[10px] text-orange-400 uppercase tracking-wider">
+                            ⚡ Últimas {item.maxStock - item.quantity + item.quantity} unidades
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Controles + Subtotal */}
+                      <div className="flex items-center justify-between mt-4 flex-wrap gap-4">
+                        {/* +/- quantidade */}
+                        <div className="flex items-center border border-[#2A2A2A]">
+                          <button
+                            onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                            aria-label="Diminuir quantidade"
+                            className="w-9 h-9 flex items-center justify-center text-white text-lg hover:bg-[#1A1A1A] transition-colors"
+                          >
+                            −
+                          </button>
+                          <span className="w-10 text-center text-sm text-white select-none">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                            disabled={item.quantity >= item.maxStock}
+                            aria-label="Aumentar quantidade"
+                            className="w-9 h-9 flex items-center justify-center text-white text-lg hover:bg-[#1A1A1A] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Subtotal + remover */}
+                        <div className="text-right">
+                          <p className="text-[#D4AF37] text-base font-medium">
+                            {fmt(itemTotal)}
+                          </p>
+                          <button
+                            onClick={() => removeItem(item.id, item.size)}
+                            className="mt-1 text-[10px] text-[#4A4A4A] hover:text-red-400 uppercase tracking-wider transition-colors"
+                          >
+                            Remover
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* ── Resumo do Pedido ───────────────────────────────────────────── */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 bg-[#141414] border border-[#2A2A2A] p-8">
+              <h2 className="font-[var(--font-serif)] text-lg font-light text-white mb-8 pb-4 border-b border-[#2A2A2A]">
+                Resumo do Pedido
+              </h2>
+
+              {/* Linha de cada item */}
+              <ul className="space-y-3 mb-6">
+                {items.map((item) => (
+                  <li
+                    key={`${item.id}-${item.size}`}
+                    className="flex justify-between text-sm"
+                  >
+                    <span className="text-[#6B6B6B] truncate pr-3 max-w-[65%]">
+                      {item.name}{' '}
+                      <span className="text-[#4A4A4A]">×{item.quantity}</span>
+                    </span>
+                    <span className="text-white whitespace-nowrap">
+                      {fmt(item.price * item.quantity)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Subtotal + Frete */}
+              <div className="space-y-3 pt-4 border-t border-[#2A2A2A] mb-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#A3A3A3]">Subtotal</span>
+                  <span className="text-white">{fmt(total)}</span>
                 </div>
-              ))}
-            </div>
-
-            {/* ============================================
-                RESUMO DO PEDIDO
-                ============================================ */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 p-8 bg-[#141414] border border-[#2A2A2A] rounded-sm">
-                <h2 className="font-[var(--font-serif)] text-xl font-light text-white mb-6">
-                  Resumo do Pedido
-                </h2>
-
-                <div className="space-y-4 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-[#A3A3A3]">Subtotal</span>
-                    <span className="text-white">
-                      {new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                      }).format(subtotal)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-[#A3A3A3]">Frete</span>
-                    <span className={shipping === 0 ? 'text-green-400' : 'text-white'}>
-                      {shipping === 0 ? 'Grátis' : new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                      }).format(shipping)}
-                    </span>
-                  </div>
-                  {shipping > 0 && (
-                    <p className="text-[10px] text-[#6B6B6B]">
-                      Frete grátis acima de R$ 500
-                    </p>
-                  )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#A3A3A3]">Frete</span>
+                  <span className={shipping === 0 ? 'text-green-400' : 'text-white'}>
+                    {shipping === 0 ? 'Grátis' : fmt(shipping)}
+                  </span>
                 </div>
+                {shipping > 0 && (
+                  <p className="text-[10px] text-[#4A4A4A]">
+                    Frete grátis em compras acima de R$ 500
+                  </p>
+                )}
+              </div>
 
-                <div className="pt-6 border-t border-[#2A2A2A] mb-6">
-                  <div className="flex justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#A3A3A3]">
-                      Total
-                    </span>
-                    <span className="text-xl font-[var(--font-serif)] text-[#D4AF37]">
-                      {new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                      }).format(total)}
-                    </span>
-                  </div>
+              {/* Total */}
+              <div className="flex justify-between items-baseline pt-4 border-t border-[#2A2A2A] mb-8">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#A3A3A3]">
+                  Total
+                </span>
+                <span className="font-[var(--font-serif)] text-2xl text-[#D4AF37]">
+                  {fmt(orderTotal)}
+                </span>
+              </div>
+
+              {/* CTA */}
+              <Link
+                href="/checkout"
+                className="block w-full py-4 text-center bg-[#D4AF37] text-[#0F0F0F] text-[11px] font-black uppercase tracking-[0.3em] hover:bg-[#C9A431] transition-colors duration-300"
+              >
+                Finalizar Compra
+              </Link>
+
+              {/* Selos */}
+              <div className="mt-6 space-y-2.5">
+                <div className="flex items-center gap-2 text-[10px] text-[#4A4A4A]">
+                  <svg className="w-3.5 h-3.5 text-[#D4AF37] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  Pagamento 100% seguro e criptografado
                 </div>
-
-                <Link
-                  href="/checkout"
-                  className="
-                    w-full
-                    py-4
-                    bg-[#D4AF37]
-                    text-[#0F0F0F]
-                    text-[11px] font-black uppercase tracking-[0.3em]
-                    hover:bg-[#D4AF37]/90
-                    transition-all duration-300
-                    block text-center
-                  "
-                >
-                  Finalizar Compra
-                </Link>
-
-                {/* Selos de Segurança */}
-                <div className="mt-6 space-y-3">
-                  <div className="flex items-center gap-2 text-[10px] text-[#6B6B6B]">
-                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    <span>Compra 100% segura</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-[10px] text-[#6B6B6B]">
-                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>30 dias para troca</span>
-                  </div>
+                <div className="flex items-center gap-2 text-[10px] text-[#4A4A4A]">
+                  <svg className="w-3.5 h-3.5 text-[#D4AF37] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Troca grátis em até 30 dias
+                </div>
+                <div className="flex items-center gap-2 text-[10px] text-[#4A4A4A]">
+                  <svg className="w-3.5 h-3.5 text-[#D4AF37] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  Envio em até 24h úteis
                 </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </main>
 
       <Footer />
